@@ -1,102 +1,114 @@
-# 超分辨率算法模板 🚀
+# Super-Resolution Algorithm Template 🚀
 
-这个项目是一个基于 **PyTorch Lightning 2.0** 的超分辨率算法模板，支持**分布式训练**，并且集成了各种**日志记录功能**，比如 **Wandb**。通过这个模板，你可以快速构建和训练自己的超分辨率模型，让高分辨率图像的生成变得更加轻松！
+This project is a **super-resolution algorithm template** built on **PyTorch Lightning 2.0+**, supporting **distributed training** and integrating various **logging functionalities**, such as **Wandb**. With this template, you can quickly build and train your own super-resolution models, making high-resolution image generation easier!
 
-本项目是对 [**miracleyoo/pytorch-lightning-template**](https://github.com/miracleyoo/pytorch-lightning-template) 仓库的修改和扩展。我们继承了原仓库的优秀设计，并做了进一步的优化和增强，特别是在超分辨率任务上的适配。
+This project is a modification and extension of the [**miracleyoo/pytorch-lightning-template**](https://github.com/miracleyoo/pytorch-lightning-template) repository. We inherited the excellent design from the original repository and further optimized and enhanced it, especially for super-resolution tasks.
 
-## 项目亮点 ✨
+## Highlights ✨
 
-- **PyTorch Lightning 2.0 构建**：高效、灵活的深度学习训练框架，简化模型训练流程。
-- **超分辨率任务支持**：专为图像超分辨率设计，支持自定义超分辨率模型。
-- **分布式训练**：支持多 GPU 分布式训练，让你轻松利用大规模计算资源。
-- **Wandb 等日志集成**：支持 **Wandb** 和其他常用 logger，记录训练过程中的各种指标和超参数，方便可视化监控。
-- **简单易用的模板**：不论是用于实验还是产品落地，直接在这个模板基础上修改你的模型和数据集即可！
+- **Built with PyTorch Lightning 2.0**: A highly efficient and flexible deep learning training framework that simplifies the training process.
+- **Super-resolution task support**: Specifically designed for image super-resolution, supporting custom super-resolution models.
+- **Distributed training**: Supports multi-GPU distributed training, allowing you to easily leverage large-scale computational resources.
+- **Wandb and other logging integrations**: Integrated with **Wandb** and other common loggers to track various metrics and hyperparameters during training for easy visualization and monitoring.
+- **Easy-to-use template**: Whether for research experiments or production deployment, you can quickly modify this template to fit your model and dataset!
 
-## 快速开始 🏃‍♂️
+## Quick Start 🏃‍♂️
 
-### 1. 克隆仓库
+### 1. Clone the repository
 
-首先，克隆本项目：
+First, clone this project:
 
 ```bash
-git clone https://github.com/yourusername/super-resolution-template.git
+git clone https://github.com/RuixuanYing/Super-resolution-lightning.git
 cd super-resolution-template
 ```
 
-### 2. 安装依赖
+### 2. Install dependencies
 
-使用 `pip` 安装所需的依赖：
+Use `pip` to install the necessary dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. 配置和训练模型
+### 3. Configure and train the model
 
-你可以通过命令行指定训练的超参数：
+You can specify training hyperparameters via the command line:
 
 ```bash
 python train.py --batch_size 16 --max_epochs 100 --gpus -1 --accelerator gpu
 ```
 
-如果你想使用分布式训练，只需添加 `--strategy ddp` 即可：
+If you want to use distributed training, simply add the `--strategy ddp` flag:
 
 ```bash
 python train.py --batch_size 16 --max_epochs 100 --gpus 4 --accelerator gpu --strategy ddp
 ```
 
-默认集成了 Wandb，开始训练时会自动记录所有的训练日志和模型表现。如果你还没有登录 Wandb，请先运行以下命令：
+By default, **Wandb** is integrated, and all training logs and model performance will be automatically recorded once training starts. If you haven’t logged into Wandb yet, run the following command first:
 
 ```bash
 wandb login
 ```
 
-### 4. 自定义你的超分辨率模型
+### 4. Customize your super-resolution model
 
-在 `model.py` 中可以定义你自己的超分辨率网络结构。你只需要继承 `pl.LightningModule` 并实现你的 `forward` 和 `training_step` 逻辑，剩下的工作 Lightning 会帮你处理！
+In `model.py`, you can define your own super-resolution network structure. You just need to inherit from `pl.LightningModule` and implement your `forward` and `training_step` logic, and Lightning will handle the rest!
 
-### 5. 日志与监控
+### 5. Logging and monitoring
 
-- 本项目集成了 **WandbLogger**，可以自动记录训练过程中的各种指标，包括 PSNR、SSIM 等。你可以通过 `wandb.ai` 网站实时查看训练进度。
-- 你也可以通过修改 `config.yaml` 文件中的 `logger` 相关配置，启用不同的日志记录器（如 TensorBoard）。
+- This project integrates **WandbLogger**, which automatically tracks various metrics during training, including PSNR, SSIM, and more. You can view real-time training progress at `wandb.ai`.
+- You can also modify the `config.yaml` file to enable different loggers (like TensorBoard).
 
-## 文件结构 🗂️
+## Project Structure 🗂️
 
 ```bash
 super-resolution-template/
 │
-├── config/                  # 配置文件
-├── data/                    # 数据模块
-├── models/                  # 模型文件，定义了超分辨率算法的网络结构
-├── logs/                    # 日志文件目录
-├── utils/                   # 一些工具函数
-├── train.py                 # 训练入口
-├── requirements.txt         # 依赖文件
-└── README.md                # 本文档
+├── data/                    # data
+│   ├── __init__.py
+│   ├── common.py
+│   ├── data_interface.py
+│   ├── recursive_up.py
+│   └── satup_data.py
+│
+├── model/                   # model
+│   ├── __init__.py
+│   ├── common.py
+│   ├── fsrcnn.py
+│   ├── metrics.py
+│   ├── model_interface.py
+│   ├── rdn_fuse.py
+│   └── utils.py
+│
+├── .gitignore                # Git ignore
+├── LICENSE                   # liecense
+├── main.py                   # train_main
+├── README.md                 # readme
+└── utils.py                  # sometools
 ```
 
-## 未来计划 🛠️
+## Future Plans 🛠️
 
-- [ ] 增加更多预训练模型支持，如 EDSR、RCAN 等。
-- [ ] 集成更多日志记录工具，如 TensorBoard 和 Neptune。
-- [ ] 增加对多种超分辨率任务的支持，包括单图像超分、视频超分等。
+- [ ] Add more pretrained model support, such as EDSR, RCAN, etc.
+- [ ] Integrate more logging tools like TensorBoard and Neptune.
+- [ ] Extend support for various super-resolution tasks, including single image SR, video SR, etc.
 
-## 贡献指南 🤝
+## Contribution Guide 🤝
 
-欢迎大家提交 PR 或 Issue 来改进这个模板！如果你有任何问题或者建议，别忘了告诉我！😄
+Contributions are welcome! Feel free to submit PRs or Issues to improve this template. If you have any questions or suggestions, don’t hesitate to let me know! 😄
 
-1. Fork 本仓库
-2. 创建一个新的分支 (`git checkout -b feature/amazing-feature`)
-3. 提交你的改动 (`git commit -am 'Add some amazing feature'`)
-4. 推送到你的分支 (`git push origin feature/amazing-feature`)
-5. 创建一个 Pull Request
+1. Fork this repository
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -am 'Add some amazing feature'`)
+4. Push to your branch (`git push origin feature/amazing-feature`)
+5. Create a Pull Request
 
-## 致谢 🙌
+## Acknowledgments 🙌
 
-感谢 [**miracleyoo/pytorch-lightning-template**](https://github.com/miracleyoo/pytorch-lightning-template) 提供的优秀代码模板！本项目在此基础上进行了修改和优化，特别感谢其对 PyTorch Lightning 社区的贡献。
+A big thank you to [**miracleyoo/pytorch-lightning-template**](https://github.com/miracleyoo/pytorch-lightning-template) for providing the excellent code template! This project builds upon that foundation with modifications and optimizations, with special thanks to their contributions to the PyTorch Lightning community.
 
 ---
 
-快来一起训练一些令人惊叹的超分辨率模型吧！🎉
-
+Let’s build some amazing super-resolution models together! 🎉
 
