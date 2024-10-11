@@ -58,7 +58,6 @@ In `model.py`, you can define your own super-resolution network structure. You j
 ### 5. Logging and monitoring
 
 - This project integrates **WandbLogger**, which automatically tracks various metrics during training, including PSNR, SSIM, and more. You can view real-time training progress at `wandb.ai`.
-- You can also modify the `config.yaml` file to enable different loggers (like TensorBoard).
 
 ## Project Structure 🗂️
 
