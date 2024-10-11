@@ -1,5 +1,3 @@
-# Copyright 2021 Zhongyang Zhang
-# Contact: mirakuruyoo@gmai.com
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,13 +22,16 @@ import pytorch_lightning as pl
 from argparse import ArgumentParser
 from pytorch_lightning import Trainer
 import pytorch_lightning.callbacks as plc
+import torch
+from pytorch_lightning.loggers import WandbLogger
+import wandb
 
 from model import MInterface
 from data import DInterface
 from utils import load_model_path_by_args
 
 
-def load_callbacks():
+def load_callbacks(args):
     callbacks = []
     callbacks.append(plc.EarlyStopping(
         monitor='mpsnr',
@@ -55,6 +56,14 @@ def load_callbacks():
 
 def main(args):
     pl.seed_everything(args.seed)
+
+    # Initialize wandb logger
+    wandb_logger = WandbLogger(
+        project="FSRCNN-lightning",  # 设置你的项目名称
+        log_model=True,  # 自动保存模型
+        save_dir="./wandb_logs"  # 设置本地保存wandb日志的位置
+    )
+
     load_path = load_model_path_by_args(args)
     data_module = DInterface(**vars(args))
 
@@ -64,19 +73,38 @@ def main(args):
         model = MInterface(**vars(args))
         args.ckpt_path = load_path
 
-    args.callbacks = load_callbacks()
-    trainer = Trainer.from_argparse_args(args)
-    trainer.fit(model, data_module)
+    # 生成 callbacks 列表
+    callbacks = load_callbacks(args)
 
+    # 手动传递解析的参数
+    trainer = Trainer(
+        max_epochs=args.max_epochs,
+        logger=wandb_logger if args.use_wandb else None,  # wandb logger
+        accelerator=args.accelerator,  # train on GPU or CPU
+        devices=torch.cuda.device_count() if args.gpus == -1 else args.gpus,  # number of GPUs to use
+        num_nodes=args.num_nodes,  # number of nodes to use for distributed training
+        precision=args.precision,  # 32-bit precision training
+        strategy="ddp",  # DDP Strategy
+        callbacks=callbacks  # callbacks list
+    )
+
+    # 开始训练
+    trainer.fit(model, data_module)
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+
     # Basic Training Control
     parser.add_argument('--batch_size', default=32, type=int)
     parser.add_argument('--num_workers', default=8, type=int)
     parser.add_argument('--seed', default=1234, type=int)
     parser.add_argument('--lr', default=1e-3, type=float)
+    parser.add_argument('--gpus', default=-1, type=int)
+    parser.add_argument('--accelerator', default="gpu" if torch.cuda.is_available() else "cpu", type=str)
+    parser.add_argument('--num_nodes', default=1, type=int)
+    parser.add_argument('--precision', default=32, type=int)
+    parser.add_argument('--use_wandb',default=True, action='store_true')
 
     # LR Scheduler
     parser.add_argument('--lr_scheduler', choices=['step', 'cosine'], type=str)
@@ -112,14 +140,7 @@ if __name__ == '__main__':
     parser.add_argument('--aug_prob', default=0.5, type=float)
 
     # Add pytorch lightning's args to parser as a group.
-    parser = Trainer.add_argparse_args(parser)
-
-    ## Deprecated, old version
-    # parser = Trainer.add_argparse_args(
-    #     parser.add_argument_group(title="pl.Trainer args"))
-
-    # Reset Some Default Trainer Arguments' Default Values
-    parser.set_defaults(max_epochs=250)
+    parser.add_argument('--max_epochs', default=250, type=int)
 
     args = parser.parse_args()
 

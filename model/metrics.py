@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-@Author  :   zhwzhong
-@License :   (C) Copyright 2013-2018, hit
-@Contact :   zhwzhong.hit@gmail.com
-@Software:   PyCharm
-@File    :   metrics.py
-@Time    :   2019/12/4 17:35
-@Desc    :
-"""
 import numpy as np
 from scipy.signal import convolve2d
 # from skimage.measure import compare_psnr, compare_ssim

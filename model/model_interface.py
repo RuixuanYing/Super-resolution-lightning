@@ -66,7 +66,7 @@ class MInterface(pl.LightningModule):
     def on_validation_epoch_end(self):
         # Make the Progress Bar leave there
         self.print('')
-        # self.print(self.get_progress_bar_dict())
+        self.print(self.get_progress_bar_dict())
 
     def configure_optimizers(self):
         if hasattr(self.hparams, 'weight_decay'):
